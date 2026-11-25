@@ -127,8 +127,8 @@ Manual mode: hand-crank + interchangeable gear rings (no electronics needed)</pr
 <p>Set MS1–MS3 high on both A4988 boards (1/16 microstep), set current limit to ~0.8 A, tie driver RESET to SLEEP, and add a 100 µF capacitor across each VMOT/GND. Share a common ground between the 12 V and 5 V sides.</p></div></section>
 
 <section id="code"><h2>Firmware &amp; CAD files</h2><div class="g">
-<div class="card"><h3>Arduino firmware</h3><p>Polar plotter that draws all 12 curves using the same equations as the demo. Send <code>H</code> to home, then e.g. <code>C 12 105 44 30 6</code> for a background pattern.</p><p><a style="color:var(--acc)" href="firmware/curve_tracer.ino">firmware/curve_tracer.ino</a></p></div>
-<div class="card"><h3>OpenSCAD gear set</h3><p>Parametric planet gear (with numbered pen holes) and internal ring gear. Export STL for printing.</p><p><a style="color:var(--acc)" href="cad/gears.scad">cad/gears.scad</a></p></div>
+<div class="card"><h3>Arduino firmware</h3><p>Polar plotter that draws all 12 curves using the same equations as the demo. Send <code>H</code> to home, then e.g. <code>C 12 105 44 30 6</code> for a background pattern.</p><p><a style="color:var(--acc)" href="code.html#firmware">View / copy / download the firmware →</a></p></div>
+<div class="card"><h3>OpenSCAD gear set</h3><p>Parametric planet gear (with numbered pen holes) and internal ring gear. Export STL for printing.</p><p><a style="color:var(--acc)" href="code.html#cad">View / copy / download gears.scad →</a></p></div>
 <div class="card"><h3>Gear calculator</h3><p>Enter module, teeth and pen offset to get diameters, centre distance, curve type and a preview.</p><p><a style="color:var(--acc)" href="gears.html">Open gear calculator →</a></p></div></div>
 <p style="color:var(--mut)">Note: the firmware draws every curve electronically using two axes (platen angle + radial slide); 3-D curves are drawn as projections, so the third Z axis is optional. The gear core is the manual spirograph mode.</p></section>
 

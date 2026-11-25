@@ -19,6 +19,7 @@ Add photos, a video, circuit diagram, CAD files and firmware in `/docs` as you b
 - `logo.svg`, `icon.svg` – project logo and favicon (square cross-section helix)
 - `index.html` – live demo, physical model, BOM, circuit, video
 - `gears.html` – gear / tooth calculator with preview
+- `code.html` – view / copy / download the firmware and OpenSCAD source in the browser
 - `firmware/curve_tracer.ino` – Arduino polar-plotter firmware (all 14 curves, cross-sections via `sec asp sq`)
 - `cad/gears.scad` – parametric OpenSCAD gears (planet with pen holes, ring gear)
 - `model3d.html` – interactive 3-D models (machine + gear set) with exact dimensions

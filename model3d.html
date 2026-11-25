@@ -49,12 +49,15 @@ table{border-collapse:collapse;width:100%;font-size:.84rem}td,th{border:1px soli
 <tr><td>Planet gear</td><td>44</td><td>Pitch Ø88, outer Ø92, root Ø83, thickness 6</td><td>Bore Ø4; 18 pen holes Ø1.6 (fit a ballpoint refill or fine-liner tip) at 4, 6 … 38 mm from the centre.</td></tr>
 <tr><td>Base board</td><td>–</td><td>260 × 260 × 8</td><td>Ring gear is screwed down; paper is placed under the planet.</td></tr>
 <tr><td>Centre distance</td><td>–</td><td>61</td><td>= m(R − r)/2. Pen at d = 30 draws 105 lobes closing after 44 carrier turns.</td></tr></table>
-<p class="hint">Print the gears with <a href="cad/gears.scad">cad/gears.scad</a>; check other combinations in the <a href="gears.html">gear calculator</a>.</p></div>
+<p class="hint">Print the gears with <a href="code.html#cad">gears.scad</a>; check other combinations in the <a href="gears.html">gear calculator</a>.</p></div>
 
 <h2>Assembly order</h2><div class="card"><ol><li>Cut the base; mount bearing block and motor A on slotted holes.</li><li>Fit shaft, pulley, hub and platen; fit belt, tension it and mark the 0° line.</li><li>Fix both posts, insert rods and the lead screw with the carriage on them.</li><li>Mount motor B and coupler; fit home switch, ruler and servo.</li><li>Wire the circuit (see <a href="index.html#circuit">circuit</a>), run <code>H</code> to home, then calibrate steps per mm and per revolution.</li></ol></div>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>window.THREE||document.write('<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"><\/script>')</script>
+<script>if(!window.THREE){document.addEventListener("DOMContentLoaded",()=>{document.getElementById("wrap").innerHTML='<p style="padding:30px;color:#ffb703">The 3-D library could not be loaded. Check your internet connection (or allow cdnjs.cloudflare.com / cdn.jsdelivr.net) and reload.</p>'});window.__no3d=1}</script>
 <script>
+if(window.__no3d)throw new Error('three.js missing');
 const $=i=>document.getElementById(i),PI=Math.PI;
 const wrap=$('wrap'),cv=$('v'),R=new THREE.WebGLRenderer({canvas:cv,antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));
 const S=new THREE.Scene();S.background=new THREE.Color(0x141b2b);const cam=new THREE.PerspectiveCamera(40,1,1,6000);
