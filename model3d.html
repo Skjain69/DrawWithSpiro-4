@@ -1,0 +1,127 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="icon.svg" type="image/svg+xml"><title>3D Models – Universal Curve Tracer</title>
+<style>
+:root{--bg:#0f1420;--card:#182033;--ink:#e8ecf5;--mut:#8f9bb5;--acc:#ffb703;--ln:#2a3550}*{box-sizing:border-box}
+body{margin:0;font:15px/1.55 system-ui,sans-serif;background:var(--bg);color:var(--ink)}main{max-width:1150px;margin:auto;padding:16px}a{color:var(--acc)}
+h2{border-left:4px solid var(--acc);padding-left:10px}.card{background:var(--card);border:1px solid var(--ln);border-radius:12px;padding:12px;margin-bottom:14px}
+#wrap{position:relative;overflow:hidden;border-radius:8px}canvas{display:block;width:100%;touch-action:none;cursor:grab}
+.lb{position:absolute;pointer-events:none;background:#000b;color:#ffd35c;font:11px ui-monospace,monospace;padding:2px 6px;border-radius:4px;transform:translate(8px,-50%);white-space:nowrap;border-left:2px solid var(--acc)}
+.bar{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}button{background:transparent;color:var(--ink);border:1px solid var(--ln);border-radius:8px;padding:5px 10px;font:inherit;cursor:pointer}button.on,button:hover{background:var(--acc);color:#111;border-color:var(--acc)}
+.sl{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px 16px}.sl label{display:flex;justify-content:space-between;font-size:.86rem}.sl b{color:var(--acc)}input[type=range]{width:100%;accent-color:var(--acc)}
+table{border-collapse:collapse;width:100%;font-size:.84rem}td,th{border:1px solid var(--ln);padding:5px 8px;text-align:left;vertical-align:top}th{background:#202b45}.hint{color:var(--mut);font-size:.85rem}
+</style></head><body><main>
+<a href="index.html"><img class="logo" src="logo.svg" alt="Universal Curve Tracer" style="display:block;margin:0 auto 14px;max-width:92%;height:auto" width="440" height="100"></a><a href="index.html">← Back to project</a><h2>3-D Component Models</h2>
+<div class="card"><div class="bar" id="views"><button data-m="m" class="on">Full machine</button><button data-m="g">Spirograph gear set</button>
+<span style="flex:1"></span><button data-c="iso">Iso</button><button data-c="top">Top</button><button data-c="front">Front</button><button data-c="side">Side</button><button id="lbt" class="on">Dimensions</button></div>
+<div id="wrap"><canvas id="v"></canvas></div><p class="hint">Drag to rotate · scroll or pinch to zoom. All sizes are in mm and match the tables below.</p>
+<div class="sl" id="sm"><div><label>Platen angle θ <b id="o1"></b></label><input id="th" type="range" min="0" max="360" value="0"></div>
+<div><label>Pen radius r <b id="o2"></b></label><input id="rr" type="range" min="0" max="110" value="50"></div>
+<div><label>Exploded view <b id="o3"></b></label><input id="ex" type="range" min="0" max="100" value="0"></div></div>
+<div class="sl" id="sg" style="display:none"><div><label>Carrier turns (R=105, r=44, d=30) <b id="o4"></b></label><input id="tt" type="range" min="0" max="44" step="0.05" value="3"></div>
+<div style="padding-top:18px"><button id="pl">▶ Animate</button></div></div></div>
+
+<h2>Machine – part list &amp; exact sizes</h2><div class="card"><table>
+<tr><th>#</th><th>Part</th><th>Qty</th><th>Size (mm)</th><th>Notes</th></tr>
+<tr><td>1</td><td>Base plate</td><td>1</td><td>440 × 360 × 12</td><td>MDF or acrylic. Origin (platen axis) at the centre.</td></tr>
+<tr><td>2</td><td>Platen disc</td><td>1</td><td>Ø240 × 6</td><td>Clear acrylic, top surface 68 above base. Degree ring: 5° ticks, long tick every 30°, engraved from r=108 to 120.</td></tr>
+<tr><td>3</td><td>Paper disc</td><td>1</td><td>Ø200</td><td>Taped to platen; maximum drawing radius is 100–110.</td></tr>
+<tr><td>4</td><td>Platen shaft</td><td>1</td><td>Ø8 × 68</td><td>Steel rod, vertical on the platen axis.</td></tr>
+<tr><td>5</td><td>Flanged bearing block</td><td>1</td><td>30 × 12 × 30, bearing 8×22×7</td><td>Screwed to base at the centre.</td></tr>
+<tr><td>6</td><td>GT2 20T pulley</td><td>2</td><td>PD 12.7, height 12</td><td>Centre at height 50. Motor bore 5, platen bore 8. Ratio 1:1 (matches firmware SPR_A = 3200).</td></tr>
+<tr><td>7</td><td>GT2 belt, closed loop</td><td>1</td><td>320 long (160T), 6 wide</td><td>Pulley centre distance 140 mm; use slotted motor holes for tension.</td></tr>
+<tr><td>8</td><td>NEMA17 motor A (platen)</td><td>1</td><td>42.3 × 42.3 × 40</td><td>Shaft up, centre at z = −140.</td></tr>
+<tr><td>9</td><td>Posts</td><td>2</td><td>20 × 140 × 70</td><td>Faces at x = ±150, centred on z = 0.</td></tr>
+<tr><td>10</td><td>Guide rods</td><td>2</td><td>Ø8 × 320</td><td>Ground steel; 300 clear span + 10 into each post. At z = ±20 (40 apart), height 95.</td></tr>
+<tr><td>11</td><td>LM8UU bearings</td><td>4</td><td>Ø15 × 24</td><td>Pressed in carriage at x = ±26, z = ±20.</td></tr>
+<tr><td>12</td><td>Pen carriage</td><td>1</td><td>80 × 20 × 60</td><td>3D-printed PLA. Pen axis at its centre; nut bridge at 30 mm left of the pen axis.</td></tr>
+<tr><td>13</td><td>T8×8 lead screw</td><td>1</td><td>Ø8 × 325</td><td>Cut from 350 stock; at height 125, z = 0. Left end in bearing in left post.</td></tr>
+<tr><td>14</td><td>T8 nut</td><td>1</td><td>22 × 22 × 22 (flange)</td><td>Bolted to the carriage bridge at x = r − 30.</td></tr>
+<tr><td>15</td><td>Coupler 5 → 8</td><td>1</td><td>Ø19 × 25</td><td>Joins motor B shaft to screw.</td></tr>
+<tr><td>16</td><td>NEMA17 motor B (radial)</td><td>1</td><td>42.3 × 42.3 × 40</td><td>Bolted to the outside of the right post, shaft along X.</td></tr>
+<tr><td>17</td><td>Pen + holder</td><td>1</td><td>Pen Ø8 × 41; holder Ø14 × 25</td><td>Tip touches paper at height 68.8. Radius r = carriage x position.</td></tr>
+<tr><td>18</td><td>SG90 servo + lever</td><td>1</td><td>23 × 12 × 29</td><td>Lifts pen (pen up 60°, down 95° in firmware).</td></tr>
+<tr><td>19</td><td>Home switch + clamp</td><td>1</td><td>switch 9 × 14 × 14</td><td>Triggers when carriage face reaches x = −40, i.e. r = 0.</td></tr>
+<tr><td>20</td><td>Ruler strip</td><td>1</td><td>300 × 10 × 2</td><td>On post fronts, ticks every 5 mm from r = 0 to 110; pointer on carriage.</td></tr></table>
+<p class="hint">Limit: the usable pen radius is 110 mm. Curves with larger parameters in the web demo need a scale factor in the firmware (e.g. ½ or ¼).</p></div>
+
+<h2>Spirograph gear set – exact sizes (module 2)</h2><div class="card"><table>
+<tr><th>Part</th><th>Teeth</th><th>Size (mm)</th><th>Notes</th></tr>
+<tr><td>Ring gear (internal)</td><td>105</td><td>Pitch Ø210, outer Ø226, thickness 6</td><td>Teeth cavity has 0.25 print clearance.</td></tr>
+<tr><td>Planet gear</td><td>44</td><td>Pitch Ø88, outer Ø92, root Ø83, thickness 6</td><td>Bore Ø4; 18 pen holes Ø1.6 (fit a ballpoint refill or fine-liner tip) at 4, 6 … 38 mm from the centre.</td></tr>
+<tr><td>Base board</td><td>–</td><td>260 × 260 × 8</td><td>Ring gear is screwed down; paper is placed under the planet.</td></tr>
+<tr><td>Centre distance</td><td>–</td><td>61</td><td>= m(R − r)/2. Pen at d = 30 draws 105 lobes closing after 44 carrier turns.</td></tr></table>
+<p class="hint">Print the gears with <a href="cad/gears.scad">cad/gears.scad</a>; check other combinations in the <a href="gears.html">gear calculator</a>.</p></div>
+
+<h2>Assembly order</h2><div class="card"><ol><li>Cut the base; mount bearing block and motor A on slotted holes.</li><li>Fit shaft, pulley, hub and platen; fit belt, tension it and mark the 0° line.</li><li>Fix both posts, insert rods and the lead screw with the carriage on them.</li><li>Mount motor B and coupler; fit home switch, ruler and servo.</li><li>Wire the circuit (see <a href="index.html#circuit">circuit</a>), run <code>H</code> to home, then calibrate steps per mm and per revolution.</li></ol></div>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=i=>document.getElementById(i),PI=Math.PI;
+const wrap=$('wrap'),cv=$('v'),R=new THREE.WebGLRenderer({canvas:cv,antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));
+const S=new THREE.Scene();S.background=new THREE.Color(0x141b2b);const cam=new THREE.PerspectiveCamera(40,1,1,6000);
+S.add(new THREE.HemisphereLight(0xffffff,0x334466,.95));const dl=new THREE.DirectionalLight(0xffffff,.8);dl.position.set(300,700,400);S.add(dl);
+const gr=new THREE.GridHelper(900,30,0x44506b,0x28324a);gr.position.y=-13;S.add(gr);
+const M=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.6,metalness:.25,side:THREE.DoubleSide},o||{}));
+const mk=p=>{const g=new THREE.Group();(p||S).add(g);return g};
+const box=(g,w,h,d,x,y,z,c,o)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),M(c,o));m.position.set(x,y,z);g.add(m);return m};
+const cyl=(g,r,h,x,y,z,c,ax,o)=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,48),M(c,o));m.position.set(x,y,z);if(ax=='x')m.rotation.z=PI/2;if(ax=='z')m.rotation.x=PI/2;g.add(m);return m};
+const lines=(g,pts,c)=>{const l=new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:c}));g.add(l)};
+const V=(x,y,z)=>new THREE.Vector3(x,y,z);
+// ---------- machine ----------
+const MC=mk(),gB=mk(MC),gD=mk(MC),gP=mk(MC),gG=mk(MC),gS=mk(MC),gC=mk(MC);
+box(gB,440,12,360,0,-6,0,0x8b6b4a);box(gB,30,12,30,0,6,0,0x666a73);
+box(gD,42.3,40,42.3,0,20,-140,0x23262b);cyl(gD,2.5,22,0,51,-140,0xcccccc);cyl(gD,6.35,12,0,50,-140,0xc0c0c0);
+box(gD,1.5,6,140,6.35,50,-70,0x111111);box(gD,1.5,6,140,-6.35,50,-70,0x111111);
+cyl(gP,4,68,0,34,0,0xaaaaaa);cyl(gP,6.35,12,0,50,0,0xc0c0c0);cyl(gP,15,6,0,59,0,0x888888);
+cyl(gP,120,6,0,65,0,0x9fd3ff,'y',{transparent:true,opacity:.7});cyl(gP,100,.8,0,68.4,0,0xffffff);
+{const t=[];for(let i=0;i<72;i++){const a=i*PI/36,l=i%6?4:10;t.push(V(120*Math.cos(a),68.3,120*Math.sin(a)),V((120-l)*Math.cos(a),68.3,(120-l)*Math.sin(a)))}lines(gP,t,0x222222)}
+[-160,160].forEach(x=>box(gG,20,140,70,x,70,0,0xc8b58a));[-20,20].forEach(z=>cyl(gG,4,320,0,95,z,0xdddddd,'x'));
+box(gG,300,10,2,0,100,36,0xf4f4f4);{const t=[];for(let x=0;x<=110;x+=5){t.push(V(x,x%10?98:96,37.2),V(x,104,37.2))}lines(gG,t,0x000000)}
+box(gG,14,22,22,-57,95,20,0x777777);box(gG,9,14,14,-45.5,95,20,0xd00000);
+cyl(gS,4,325,7.5,125,0,0xd4af37,'x');cyl(gS,11,7,-160,125,0,0x777777,'x');cyl(gS,9.5,25,182.5,125,0,0x3b82f6,'x');box(gS,40,42.3,42.3,215,125,0,0x23262b);cyl(gS,2.5,12,192,125,0,0xcccccc,'x');
+box(gC,80,20,60,0,95,0,0x2a9d8f);[-26,26].forEach(x=>[-20,20].forEach(z=>cyl(gC,7.5,24,x,95,z,0x999999,'x')));
+box(gC,14,12,14,-30,110,0,0x2a9d8f);box(gC,22,22,22,-30,125,0,0xd4af37);cyl(gC,7,25,0,82.5,0,0x333333);cyl(gC,4,41.2,0,89.4,0,0x1d4ed8);
+box(gC,23,12,29,28,111,0,0x1e40af);box(gC,1.5,12,10,0,100,42,0xff3b3b);
+// ---------- gear set ----------
+const GS=mk();GS.visible=false;box(GS,260,8,260,0,-4,0,0x8b6b4a);
+function tp(z,m,gw){const ro=m*(z+2)/2+gw,rr=m*(z-2.5)/2+gw,hb=(.75*m+gw)/rr,ht=(.35*m+gw)/ro,p=[];
+ for(let i=0;i<z;i++){const a=i*2*PI/z;[[rr,a-hb],[ro,a-ht],[ro,a+ht],[rr,a+hb]].forEach(([r,t])=>p.push(new THREE.Vector2(r*Math.cos(t),r*Math.sin(t))))}return p}
+function ext(sh,d,c,o){const g=new THREE.ExtrudeGeometry(sh,{depth:d,bevelEnabled:false});g.rotateX(-PI/2);return new THREE.Mesh(g,M(c,o))}
+{const s=new THREE.Shape();s.absarc(0,0,113,0,2*PI,false);s.holes.push(new THREE.Path(tp(105,2,.25)));GS.add(ext(s,6,0xe9c46a))}
+const PL=mk(GS);{const s=new THREE.Shape(tp(44,2,0)),h=(x,r)=>{const p=new THREE.Path();p.absarc(x,0,r,0,2*PI,true);s.holes.push(p)};h(0,2);for(let k=1;k<=18;k++)h(2*k+2,.8);
+ PL.add(ext(s,6,0xe76f51,{transparent:true,opacity:.82}));cyl(PL,4,90,30,45,0,0x1d4ed8)}
+const NT=18000,tpos=new Float32Array(NT*3),tg=new THREE.BufferGeometry();tg.setAttribute('position',new THREE.BufferAttribute(tpos,3));
+const trail=new THREE.Line(tg,new THREE.LineBasicMaterial({color:0xc1121f}));trail.frustumCulled=false;GS.add(trail);
+function gU(){const T=+$('tt').value,t=T*2*PI,A=61,k=61/44,d=30;PL.position.set(A*Math.cos(t),0,-A*Math.sin(t));PL.rotation.y=-k*t;
+ const n=Math.max(2,Math.min(NT-1,Math.floor(T*400)));for(let i=0;i<=n;i++){const s=t*i/n;tpos[3*i]=A*Math.cos(s)+d*Math.cos(k*s);tpos[3*i+1]=.3;tpos[3*i+2]=-(A*Math.sin(s)-d*Math.sin(k*s))}
+ tg.setDrawRange(0,n+1);tg.attributes.position.needsUpdate=true;$('o4').textContent=T.toFixed(2)}
+// ---------- machine controls ----------
+function mU(){const th=+$('th').value,r=+$('rr').value,e=+$('ex').value/100;gP.rotation.y=th*PI/180;gP.position.y=e*110;gG.position.y=e*200;gS.position.set(e*60,e*200,0);gD.position.z=-e*60;gC.position.set(r,e*320,0);
+ $('o1').textContent=th+'°';$('o2').textContent=r+' mm';$('o3').textContent=Math.round(e*100)+'%'}
+// ---------- labels ----------
+const L=[];function lab(g,x,y,z,t,m){const e=document.createElement('div');e.className='lb';e.textContent=t;wrap.appendChild(e);L.push({e,g,v:V(x,y,z),m})}
+lab(gB,-215,0,170,'Base 440×360×12','m');lab(gP,0,69,118,'Platen Ø240×6 · 5° scale','m');lab(gP,70,69,-70,'Paper Ø200','m');lab(gD,0,50,-70,'GT2-320 belt, C=140','m');lab(gD,0,42,-160,'NEMA17 A 42×42×40','m');
+lab(gG,160,142,0,'Post 20×140×70','m');lab(gG,-100,95,-20,'Rod Ø8×320, 40 apart','m');lab(gS,60,127,0,'T8 screw Ø8×325','m');lab(gS,215,148,0,'NEMA17 B','m');lab(gG,150,100,37,'Ruler 0–110 mm','m');lab(gC,0,110,0,'Pen carriage 80×20×60','m');
+lab(GS,0,0,128,'Ring gear 105T, outer Ø226','g');lab(GS,40,0,-60,'Planet 44T, Ø88 pitch','g');lab(GS,0,92,0,'Pen holes 4–38 mm','g');lab(GS,-130,0,-130,'Base 260×260×8','g');
+// ---------- camera ----------
+const O={th:.8,ph:1,rad:850,t:V(0,60,0)};let mode='m',lbOn=true,play=false;
+const presets={iso:[.8,1],top:[0,.05],front:[0,1.5],side:[1.57,1.5]};
+document.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{[O.th,O.ph]=presets[b.dataset.c]});
+document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll('[data-m]').forEach(x=>x.classList.toggle('on',x===b));
+ MC.visible=mode=='m';GS.visible=mode=='g';$('sm').style.display=mode=='m'?'':'none';$('sg').style.display=mode=='g'?'':'none';O.t=mode=='m'?V(0,60,0):V(0,0,0);O.rad=mode=='m'?850:420;gr.position.y=mode=='m'?-13:-9});
+$('lbt').onclick=e=>{lbOn=!lbOn;e.target.classList.toggle('on',lbOn)};$('pl').onclick=e=>{play=!play;e.target.textContent=play?'⏸ Pause':'▶ Animate'};
+['th','rr','ex'].forEach(i=>$(i).oninput=mU);$('tt').oninput=gU;
+const ptr=new Map(),pd=()=>{const a=[...ptr.values()];return Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1])||1};let d0=1;
+cv.onpointerdown=e=>{cv.setPointerCapture(e.pointerId);ptr.set(e.pointerId,[e.clientX,e.clientY]);if(ptr.size==2)d0=pd()};
+cv.onpointermove=e=>{const o=ptr.get(e.pointerId);if(!o)return;if(ptr.size==1){O.th-=(e.clientX-o[0])*.008;O.ph=Math.min(3.1,Math.max(.05,O.ph-(e.clientY-o[1])*.008))}
+ ptr.set(e.pointerId,[e.clientX,e.clientY]);if(ptr.size==2){const d=pd();O.rad=Math.min(2500,Math.max(120,O.rad*d0/d));d0=d}};
+cv.onpointerup=cv.onpointercancel=e=>ptr.delete(e.pointerId);
+cv.addEventListener('wheel',e=>{e.preventDefault();O.rad=Math.min(2500,Math.max(120,O.rad*(1+e.deltaY*.001)))},{passive:false});
+function size(){const w=wrap.clientWidth,h=Math.round(Math.min(650,Math.max(400,innerHeight*.68)));R.setSize(w,h,false);cv.style.height=h+'px';cam.aspect=w/h;cam.updateProjectionMatrix()}
+addEventListener('resize',size);size();
+let last=0;function loop(t){const dt=(t-last)/1000;last=t;if(play&&mode=='g'){const v=+$('tt').value+dt*2;$('tt').value=v>44?0:v;gU()}
+ cam.position.set(O.t.x+O.rad*Math.sin(O.ph)*Math.sin(O.th),O.t.y+O.rad*Math.cos(O.ph),O.t.z+O.rad*Math.sin(O.ph)*Math.cos(O.th));cam.lookAt(O.t);
+ S.updateMatrixWorld();R.render(S,cam);const w=wrap.clientWidth,h=cv.clientHeight;
+ L.forEach(l=>{const p=l.g.localToWorld(l.v.clone()).project(cam);const on=lbOn&&l.m==mode&&p.z<1;l.e.style.display=on?'':'none';if(on){l.e.style.left=(p.x*.5+.5)*w+'px';l.e.style.top=(-p.y*.5+.5)*h+'px'}});
+ requestAnimationFrame(loop)}
+mU();gU();requestAnimationFrame(loop);
+</script></body></html>

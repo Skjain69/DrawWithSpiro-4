@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Universal Curve Tracer – Spirograph Project</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<style>
+:root{--bg:#0f1420;--card:#182033;--ink:#e8ecf5;--mut:#8f9bb5;--acc:#ffb703;--ln:#2a3550}
+*{box-sizing:border-box}body{margin:0;font:15px/1.55 system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+header{padding:28px 20px 10px;text-align:center}h1{margin:0;font-size:1.9rem}h1 span{color:var(--acc)}
+header p{color:var(--mut);margin:6px 0 0}nav{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;padding:12px}
+nav a{color:var(--ink);text-decoration:none;padding:6px 14px;border:1px solid var(--ln);border-radius:99px}nav a:hover{border-color:var(--acc)}
+section{max-width:1150px;margin:0 auto;padding:18px 16px}h2{border-left:4px solid var(--acc);padding-left:10px}
+.demo{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:14px}@media(max-width:850px){.demo{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:12px;padding:14px}
+canvas{width:100%;background:#fbfaf5;border-radius:8px;display:block;touch-action:none}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.chips button,.btns button{background:transparent;color:var(--ink);border:1px solid var(--ln);border-radius:8px;padding:5px 10px;cursor:pointer;font:inherit}
+.chips button.on,.btns button:hover{background:var(--acc);color:#111;border-color:var(--acc)}
+.btns{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.pr{margin:10px 0}.pr label{display:flex;justify-content:space-between;font-size:.88rem}.pr b{color:var(--acc);font-variant-numeric:tabular-nums}
+.pr input[type=range]{width:100%;accent-color:var(--acc)}.sc{display:flex;justify-content:space-between;color:var(--mut);font-size:.72rem}
+#info,#cmd{font:12px/1.5 ui-monospace,monospace;color:var(--mut);margin-top:8px}#eq{color:var(--acc);font:13px ui-monospace,monospace;margin:4px 0 8px}
+table{border-collapse:collapse;width:100%;font-size:.86rem}td,th{border:1px solid var(--ln);padding:6px 8px;text-align:left;vertical-align:top}th{background:#202b45}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}code{background:#0b101b;padding:1px 5px;border-radius:4px}
+footer{text-align:center;color:var(--mut);padding:30px}
+
+.sr{position:absolute;left:-9999px}.logo{display:block;margin:0 auto;max-width:92%;height:auto}
+.stage{background:var(--card);border:1px solid var(--ln);border-radius:12px;padding:10px}
+.tb{display:flex;flex-wrap:wrap;gap:6px;align-items:stretch;margin-bottom:8px}.tb .sp{flex:1}.dd{position:relative}
+.ddb{display:flex;flex-direction:column;align-items:flex-start;line-height:1.2;background:#111a2c;color:var(--ink);border:1px solid var(--ln);border-radius:8px;padding:4px 10px;cursor:pointer;font:inherit;min-width:104px;text-align:left}
+.ddb small{color:var(--mut);font-size:.66rem;text-transform:uppercase;letter-spacing:.06em}.ddb:disabled{opacity:.4;cursor:not-allowed}.ddb:hover:not(:disabled){border-color:var(--acc)}
+.pop{display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:30;width:min(340px,92vw);max-height:68vh;overflow:auto;background:rgba(20,28,46,.94);border:1px solid var(--acc);border-radius:10px;padding:10px;box-shadow:0 8px 30px #0009}
+.pop.open{display:block}.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}.ph .x{padding:0 8px}
+.pop h4{margin:8px 0 4px;color:var(--acc);font-size:.76rem;text-transform:uppercase;letter-spacing:.06em}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.b{background:transparent;color:var(--ink);border:1px solid var(--ln);border-radius:8px;padding:5px 8px;cursor:pointer;font:inherit;font-size:.85rem}.b.on,.b:hover{background:var(--acc);color:#111;border-color:var(--acc)}
+.swr{display:flex;gap:7px;flex-wrap:wrap;margin:6px 0}.swr button{width:26px;height:26px;border-radius:50%;padding:0;border:2px solid #fff6;cursor:pointer}
+.row{display:flex;gap:8px;align-items:center;margin:8px 0;font-size:.9rem}#sw{display:inline-block;width:11px;height:11px;border-radius:50%;background:#c1121f;border:1px solid #fff8;vertical-align:-1px;margin-right:4px}
+@media(max-width:899px){.stage{position:sticky;top:0;z-index:20}.dd{position:static}.pop{position:fixed;left:0;right:0;bottom:0;top:auto;width:auto;max-height:42vh;border-radius:14px 14px 0 0}.ddb{min-width:0;padding:3px 7px;font-size:.8rem}}
+</style></head><body>
+<header><a href="index.html"><img class="logo" src="logo.svg" alt="Universal Curve Tracer logo: a square cross-section helix" width="440" height="100"></a><h1 class="sr">Universal Curve Tracer</h1>
+<p>A spirograph-inspired machine that draws 14 curve families (spiral, helix, toroid and spiralling helix in 6 cross-sections, plus regular polygons) — live web demo + physical model design</p></header>
+<nav><a href="#demo">Live Demo</a><a href="#model">Physical Model</a><a href="#table">Machine Settings</a><a href="#build">Build Guide</a><a href="#bom">BOM &amp; Cost</a><a href="#circuit">Circuit</a><a href="model3d.html">3D Models</a><a href="#code">Firmware &amp; CAD</a><a href="#video">Video</a><a href="#team">Team</a></nav>
+
+<section id="demo"><h2>Live Demo</h2>
+<div class="stage"><div class="tb">
+<div class="dd"><button class="ddb" data-p="pop_c"><small>Curve type</small><span id="l_c">Spiral</span> ▾</button><div class="pop" id="pop_c" data-t="Curve type"></div></div>
+<div class="dd"><button class="ddb" data-p="pop_s" id="b_s"><small>Cross-section</small><span id="l_s">Circular</span> ▾</button><div class="pop" id="pop_s" data-t="Cross-section"></div></div>
+<div class="dd"><button class="ddb" data-p="pop_p"><small>Parameters</small><span id="l_p">3 settings</span> ▾</button><div class="pop" id="pop_p" data-t="Parameters"><div id="params"></div></div></div>
+<div class="dd"><button class="ddb" data-p="pop_n"><small>Pen &amp; paper</small><span><i id="sw"></i>Colour</span> ▾</button><div class="pop" id="pop_n" data-t="Pen &amp; paper">
+<label class="row">Pen colour <input id="col" type="color" value="#c1121f"></label><div class="swr" id="swr"></div>
+<label class="row"><input type="checkbox" id="rb"> Rainbow pen</label>
+<div class="pr"><label>Line width <b><span id="lwv">1.6</span> px</b></label><input id="lw" type="range" min="0.5" max="6" step="0.1" value="1.6"></div>
+<label class="row"><input type="checkbox" id="gd" checked> Show grid &amp; scale</label></div></div>
+<div class="dd"><button class="ddb" data-p="pop_v"><small>Speed &amp; view</small><span>Adjust</span> ▾</button><div class="pop" id="pop_v" data-t="Speed &amp; view">
+<div class="pr"><label>Tracing speed <b id="spv"></b></label><input id="sp" type="range" min="1" max="100" value="30"></div>
+<div id="view3d"><div class="pr"><label>3D view – yaw <b id="yv"></b></label><input id="yaw" type="range" min="0" max="360" value="30"></div>
+<div class="pr"><label>pitch <b id="pv"></b></label><input id="pit" type="range" min="0" max="90" value="35"></div></div></div></div>
+<span class="sp"></span><button class="b" id="play">⏸ Pause</button><button class="b" id="reset" title="Restart">⟲</button><button class="b" id="full">Full</button><button class="b" id="png">PNG</button></div>
+<canvas id="cv" width="900" height="640"></canvas><div id="info"></div><div id="eq"></div><div id="cmd"></div></div></section>
+
+<section id="model"><h2>Physical Model – Concept</h2>
+<p>One frame, four swappable drive modules, all sharing a rotating paper <b>platen</b> and a marked <b>pen arm</b>. Every dial has an engraved scale (mm / teeth / degrees) matching the sliders above, so a setting on the screen can be copied onto the machine.</p>
+<div class="g">
+<div class="card"><h3>M1 · Planetary core</h3><p>Ring gear (R teeth) + planet gear (r teeth) with a pen arm having numbered holes (offset d). Gives Circle, Ellipse, Line (Cardan: r = R/2), Cardioid, Flower, Background pattern.</p></div>
+<div class="card"><h3>M2 · Rack roller</h3><p>Same planet gear rolls on a straight rack; pen at radius d from centre → Cycloid (d=r), curtate/prolate variants.</p></div>
+<div class="card"><h3>M3 · Polar drive</h3><p>Platen turns (angle θ) while the pen slides radially on a lead-screw at a ratio b mm/rad → Archimedean Spiral. A third axis feeds the paper/pen height to draw a Helix and Toroid projection.</p></div>
+<div class="card"><h3>M4 · Cartesian cam / XY</h3><p>Two lead-screw axes (or cut profile cams) with the Arduino generating x=t, y=t²/4f → Parabola, x=a·cosh t, y=b·sinh t → Hyperbola.</p></div></div>
+<h3>Block diagram</h3>
+<pre class="card">Arduino/ESP32 ─┬─ Stepper A (platen θ) ──► rotating paper table (scale: 0–360°)
+ + LCD + keypad ├─ Stepper B (pen radial slide) ► lead screw, ruler scale 0–150 mm
+ + limit switch ├─ Stepper C (Z / paper feed) ──► helix, toroid, cycloid travel
+                └─ Servo (pen up/down) ────────► breaks between branches/layers
+Manual mode: hand-crank + interchangeable gear rings (no electronics needed)</pre>
+<p>Helix and toroid are 3-D curves; the machine draws their projections (front view = sinusoid, top view = circle/epitrochoid) and the demo shows the full 3-D view.</p></section>
+
+<section id="table"><h2>Machine settings per curve</h2><table>
+<tr><th>Curve</th><th>Equation</th><th>Parameters (range)</th><th>Module</th></tr>
+<tr><td>Spiral</td><td>r = (a + bθ)·ρ(θ)</td><td>a 0–50 mm, b 0.1–20 mm/rad, turns 1–20, cross-section</td><td>Polar drive</td></tr>
+<tr><td>Helix</td><td>(R·ρ cos t, R·ρ sin t, p t/2π)</td><td>R 5–100, pitch 1–50, turns 1–15, cross-section</td><td>Polar drive (projection)</td></tr>
+<tr><td>Hyperbola</td><td>x=a cosh s, y=b sinh s</td><td>a 5–100, b 5–100, range 0.5–2.5</td><td>M4</td></tr>
+<tr><td>Parabola</td><td>y = x²/4f</td><td>f 5–100, half-width 10–150</td><td>M4</td></tr>
+<tr><td>Ellipse</td><td>x=a cos t, y=b sin t</td><td>a 5–150, b 5–150, tilt 0–180°</td><td>M1 (d≠r, r=R/2)</td></tr>
+<tr><td>Circle</td><td>x²+y²=R²</td><td>R 1–200</td><td>M1 (d=0)</td></tr>
+<tr><td>Straight line</td><td>length L at angle φ</td><td>L 5–300, φ 0–180°</td><td>M1 (d=r)</td></tr>
+<tr><td>Cycloid</td><td>x=Rt−d sin t, y=R−d cos t</td><td>R 3–50, d 0–100, arches 1–6</td><td>M2</td></tr>
+<tr><td>Cardioid</td><td>epicycloid, R=k·r</td><td>r 5–60, k 1–8 (k=1 cardioid)</td><td>M1</td></tr>
+<tr><td>Toroid</td><td>tube section ρ(m), wound q times</td><td>R 20–100, r 5–60, q 1–40, cross-section</td><td>Polar drive (projection)</td></tr>
+<tr><td>Flower</td><td>r = a cos(pθ/q)</td><td>a 10–150, p 1–15, q 1–9</td><td>M1/M3</td></tr>
+<tr><td>Background pattern</td><td>hypotrochoid × layers</td><td>R 20–200, r 3–150, d 0–150, layers 1–24</td><td>M1</td></tr><tr><td>Regular polygon</td><td>n vertices on a circle of radius R</td><td>n 3–12, R 5–150, rotation 0–360°</td><td>Polar drive</td></tr><tr><td>Spiralling helix</td><td>r = (a + bt)·ρ(t), z = p t/2π</td><td>a 2–60, b 0.1–10, pitch 1–50, turns 1–15, cross-section</td><td>Polar drive (projection)</td></tr></table>
+<h3>Cross-sections and polygons</h3>
+<p>The <b>cross-section</b> is the outline of one turn: the plan view of a helix, the shape of each turn of a spiral, the tube profile of a toroid and the plan view of the spiralling helix (a coil whose radius grows as it rises). It is defined by a radius function ρ(φ) (circumradius or half-width = 1): <b>circular</b> ρ=1; <b>elliptical</b> aspect b/a; <b>squarish</b> and <b>rectangularish</b> use a superellipse |x|ⁿ+|y/b|ⁿ=1 (n=2 round … n=20 almost sharp); <b>triangular</b> and <b>hexagonal</b> are regular polygons. <b>Regular polygons</b> of 3–12 sides are drawn as straight edges between n vertices. On the machine these are drawn electronically by the polar drive (the gear core cannot make them). The demo shows the matching firmware command under the drawing.</p></section>
+
+<section id="build"><h2>Build Guide (summary)</h2><div class="g">
+<div class="card"><h3>Bill of materials</h3><p>3× NEMA17 + A4988 drivers · Arduino Nano/ESP32 · 1 servo · 12 V 3 A supply · 2× T8 lead screw (200 mm) · linear rails · 3D-printed/laser-cut gears (module 1, 30–150 teeth) · MDF/acrylic base · 16×2 LCD + rotary encoder · engraved scales.</p></div>
+<div class="card"><h3>Steps</h3><p>1) Print the gear set, 2) assemble platen + radial slide, 3) glue ruler/degree scales, 4) wire the electronics, 5) load firmware computing the same equations as <code>index.html</code>, 6) calibrate steps/mm, 7) trace and compare against the demo.</p></div>
+<div class="card"><h3>Exhibition tips</h3><p>Run the demo on a laptop next to the machine; show the same preset on both. Keep a poster with the table above. Use different colour pens for layers.</p></div></div></section>
+
+<section id="3d"><h2>3-D Component Models</h2><div class="card"><p>Interactive, rotatable 3-D models of the full machine (with exploded view, moving platen and pen carriage) and of the spirograph gear set, with dimension labels and exact part tables.</p><p><a style="color:var(--acc)" href="model3d.html">Open 3-D models →</a></p></div></section>
+
+<section id="bom"><h2>Bill of Materials &amp; Cost (estimate, USD)</h2><table>
+<tr><th>Item</th><th>Qty</th><th>Approx. cost</th></tr>
+<tr><td>NEMA17 stepper (platen, radial slide)</td><td>2</td><td>$24</td></tr>
+<tr><td>A4988 drivers + 100 µF caps</td><td>2</td><td>$5</td></tr>
+<tr><td>Arduino Nano / ESP32</td><td>1</td><td>$6</td></tr>
+<tr><td>SG90 servo (pen lift)</td><td>1</td><td>$3</td></tr>
+<tr><td>12 V 3 A supply + 5 V buck converter</td><td>1+1</td><td>$10</td></tr>
+<tr><td>T8×8 lead screw 200 mm + nut, 8 mm rods + bearings</td><td>1 set</td><td>$18</td></tr>
+<tr><td>GT2 belt + pulleys (platen drive), bearing for platen</td><td>1 set</td><td>$10</td></tr>
+<tr><td>3D-printed gears (PLA ≈ 200 g), ring gears, pen arm</td><td>set</td><td>$5</td></tr>
+<tr><td>MDF/acrylic base, platen disc, fasteners</td><td>–</td><td>$14</td></tr>
+<tr><td>16×2 I²C LCD, rotary encoder, limit switch, wires</td><td>–</td><td>$9</td></tr>
+<tr><td>Pens, paper, engraved/printed scale stickers</td><td>–</td><td>$5</td></tr>
+<tr><th>Total</th><th></th><th>≈ $110 (optional Z stepper +$14)</th></tr></table>
+<p style="color:var(--mut)">Prices are rough estimates and vary by region and supplier — update them with your own quotes.</p></section>
+
+<section id="circuit"><h2>Circuit Diagram</h2><div class="card"><svg viewBox="0 0 760 330" width="100%" font-family="monospace" font-size="12" fill="none" stroke="#e8ecf5">
+<rect x="270" y="90" width="150" height="150" rx="8" stroke="#ffb703"/><text x="295" y="115" fill="#ffb703" stroke="none">Arduino Nano</text>
+<g fill="#e8ecf5" stroke="none"><text x="280" y="145">D2  D3 → A STEP/DIR</text><text x="280" y="165">D4  D5 → B STEP/DIR</text><text x="280" y="185">D8 → EN (both)</text><text x="280" y="205">D9 → servo</text><text x="280" y="225">D10 ← home switch</text></g>
+<rect x="30" y="40" width="150" height="60" rx="6"/><text x="45" y="65" fill="#e8ecf5" stroke="none">A4988 #1 → NEMA17</text><text x="45" y="85" fill="#e8ecf5" stroke="none">platen (angle)</text>
+<rect x="30" y="130" width="150" height="60" rx="6"/><text x="45" y="155" fill="#e8ecf5" stroke="none">A4988 #2 → NEMA17</text><text x="45" y="175" fill="#e8ecf5" stroke="none">radial lead screw</text>
+<rect x="30" y="230" width="150" height="50" rx="6"/><text x="45" y="260" fill="#e8ecf5" stroke="none">SG90 pen servo</text>
+<rect x="540" y="40" width="190" height="70" rx="6"/><text x="552" y="65" fill="#e8ecf5" stroke="none">12 V 3 A supply</text><text x="552" y="85" fill="#e8ecf5" stroke="none">→ VMOT of both drivers</text><text x="552" y="100" fill="#e8ecf5" stroke="none">→ buck 5 V → Nano, servo</text>
+<rect x="540" y="150" width="190" height="55" rx="6"/><text x="552" y="175" fill="#e8ecf5" stroke="none">I²C LCD: A4 SDA, A5 SCL</text><text x="552" y="195" fill="#e8ecf5" stroke="none">Encoder: D11 D12 D13</text>
+<rect x="540" y="235" width="190" height="45" rx="6"/><text x="552" y="262" fill="#e8ecf5" stroke="none">Limit switch → GND</text>
+<path d="M180 70H225V145H270M180 160H235V165H270M180 255H250V205H270M420 130H540V180M420 225H500V257H540M540 75H480V100"/></svg>
+<p>Set MS1–MS3 high on both A4988 boards (1/16 microstep), set current limit to ~0.8 A, tie driver RESET to SLEEP, and add a 100 µF capacitor across each VMOT/GND. Share a common ground between the 12 V and 5 V sides.</p></div></section>
+
+<section id="code"><h2>Firmware &amp; CAD files</h2><div class="g">
+<div class="card"><h3>Arduino firmware</h3><p>Polar plotter that draws all 12 curves using the same equations as the demo. Send <code>H</code> to home, then e.g. <code>C 12 105 44 30 6</code> for a background pattern.</p><p><a style="color:var(--acc)" href="firmware/curve_tracer.ino">firmware/curve_tracer.ino</a></p></div>
+<div class="card"><h3>OpenSCAD gear set</h3><p>Parametric planet gear (with numbered pen holes) and internal ring gear. Export STL for printing.</p><p><a style="color:var(--acc)" href="cad/gears.scad">cad/gears.scad</a></p></div>
+<div class="card"><h3>Gear calculator</h3><p>Enter module, teeth and pen offset to get diameters, centre distance, curve type and a preview.</p><p><a style="color:var(--acc)" href="gears.html">Open gear calculator →</a></p></div></div>
+<p style="color:var(--mut)">Note: the firmware draws every curve electronically using two axes (platen angle + radial slide); 3-D curves are drawn as projections, so the third Z axis is optional. The gear core is the manual spirograph mode.</p></section>
+
+<section id="video"><h2>Demo Video</h2><div class="card"><p>Upload your video to YouTube, then replace <code>VIDEO_ID</code> below (or drop an <code>mp4</code> in <code>docs/</code> and use a <code>&lt;video&gt;</code> tag).</p>
+<!-- <iframe width="100%" height="420" src="https://www.youtube.com/embed/VIDEO_ID" allowfullscreen></iframe> -->
+<p style="color:var(--mut)">Suggested shots: machine close-up tracing each curve, split-screen with this web demo, and the parameter dials being adjusted.</p></div></section>
+
+<section id="team"><h2>Team</h2><p>Edit this block: project title, students, guide, department, college.</p></section>
+<footer>Universal Curve Tracer · college exhibition project · MIT licence</footer>
+
+<script>
+const TAU=Math.PI*2,gcd=(a,b)=>b?gcd(b,a%b):a,cosh=Math.cosh,sinh=Math.sinh;
+// ---- cross-section shapes: rho(kind, polar angle) = radius of the section outline ----
+const SEC={k:'circle',asp:.6,sq:4},mod=(a,b)=>((a%b)+b)%b;
+const polyR=(n,f)=>Math.cos(Math.PI/n)/Math.cos(mod(f,TAU/n)-Math.PI/n);
+function rho(k,f){const A=SEC.asp,N=SEC.sq,c=Math.abs(Math.cos(f)),s=Math.abs(Math.sin(f));
+ if(k=='ellipse')return 1/Math.hypot(Math.cos(f),Math.sin(f)/A);
+ if(k=='square')return Math.pow(Math.pow(c,N)+Math.pow(s,N),-1/N);
+ if(k=='rect')return Math.pow(Math.pow(c,N)+Math.pow(s/A,N),-1/N);
+ if(k=='tri')return polyR(3,f-Math.PI/2);if(k=='hex')return polyR(6,f);return 1}
+// param: [key,label,min,max,step,default,unit]
+const C={
+spiral:{n:'Spiral',sec:1,N:p=>Math.max(1500,400*p.T),eq:'r = (a + bθ)·ρ(θ),  ρ = cross-section shape',p:[['a','Start size a',0,50,.5,2,'mm'],['b','Growth b',.1,20,.1,3,'mm/rad'],['T','Turns',1,20,.5,6,'']],
+ f:(u,i,p)=>{const t=u*p.T*TAU,r=(p.a+p.b*t)*rho(SEC.k,t);return[r*Math.cos(t),r*Math.sin(t),0]}},
+helix:{n:'Helix',d3:1,sec:1,N:p=>Math.max(1500,400*p.T),eq:'(R·ρ cos t, R·ρ sin t, pitch·t/2π)',p:[['R','Size R (half-width / circumradius)',5,100,1,30,'mm'],['h','Pitch',1,50,.5,12,'mm/turn'],['T','Turns',1,15,.5,6,'']],
+ f:(u,i,p)=>{const t=u*p.T*TAU,r=p.R*rho(SEC.k,t);return[r*Math.cos(t),r*Math.sin(t),p.h*(t/TAU-p.T/2)]}},
+hyperbola:{n:'Hyperbola',seg:()=>2,eq:'x = ±a cosh s,  y = b sinh s',p:[['a','Semi-axis a',5,100,1,30,'mm'],['b','Semi-axis b',5,100,1,20,'mm'],['s','Range s',.5,2.5,.05,1.5,'']],
+ f:(u,i,p)=>{const s=(2*u-1)*p.s;return[(i?-1:1)*p.a*cosh(s),p.b*sinh(s),0]}},
+parabola:{n:'Parabola',eq:'y = x² / 4f',p:[['f','Focal length f',5,100,1,15,'mm'],['w','Half-width',10,150,1,60,'mm']],
+ f:(u,i,p)=>{const x=(2*u-1)*p.w;return[x,x*x/(4*p.f),0]}},
+ellipse:{n:'Ellipse',eq:'x = a cos t,  y = b sin t',p:[['a','Semi-major a',5,150,1,60,'mm'],['b','Semi-minor b',5,150,1,35,'mm'],['k','Tilt',0,180,1,20,'°']],
+ f:(u,i,p)=>{const t=u*TAU,x=p.a*Math.cos(t),y=p.b*Math.sin(t),c=p.k*Math.PI/180;return[x*Math.cos(c)-y*Math.sin(c),x*Math.sin(c)+y*Math.cos(c),0]}},
+circle:{n:'Circle',eq:'x² + y² = R²',p:[['R','Radius R',1,200,1,50,'mm']],f:(u,i,p)=>[p.R*Math.cos(u*TAU),p.R*Math.sin(u*TAU),0]},
+line:{n:'Straight line',eq:'P = t·L(cos φ, sin φ)',p:[['L','Length L',5,300,1,100,'mm'],['k','Angle φ',0,180,1,30,'°']],
+ f:(u,i,p)=>{const c=p.k*Math.PI/180,t=(u-.5)*p.L;return[t*Math.cos(c),t*Math.sin(c),0]}},
+cycloid:{n:'Cycloid',eq:'x = Rt − d sin t,  y = R − d cos t',p:[['R','Rolling radius R',3,50,.5,10,'mm'],['d','Pen offset d (d=R cycloid)',0,100,.5,10,'mm'],['T','Arches',1,6,1,3,'']],
+ f:(u,i,p)=>{const t=(u-.5)*p.T*TAU;return[p.R*t-p.d*Math.sin(t),p.R-p.d*Math.cos(t),0]}},
+cardioid:{n:'Cardioid',eq:'epicycloid: R = k·r  (k=1 → cardioid)',p:[['r','Rolling radius r',5,60,.5,20,'mm'],['k','Ratio k',1,8,1,1,'']],
+ f:(u,i,p)=>{const t=u*TAU,q=p.k+1;return[p.r*(q*Math.cos(t)-Math.cos(q*t)),p.r*(q*Math.sin(t)-Math.sin(q*t)),0]}},
+toroid:{n:'Toroid',d3:1,sec:1,N:p=>Math.max(1500,250*p.q),eq:'tube section ρ(m) wound q times round a ring of radius R',p:[['R','Major radius R',20,100,1,50,'mm'],['r','Tube size r',5,60,1,18,'mm'],['q','Windings q',1,40,1,12,'']],
+ f:(u,i,p)=>{const t=u*TAU,m=p.q*t,s=p.r*rho(SEC.k,m),w=p.R+s*Math.cos(m);return[w*Math.cos(t),w*Math.sin(t),s*Math.sin(m)]}},
+flower:{n:'Flower',eq:'r = a cos(pθ/q)',p:[['a','Petal length a',10,150,1,60,'mm'],['p','p',1,15,1,5,''],['q','q',1,9,1,2,'']],
+ f:(u,i,p)=>{const t=u*TAU*p.q,r=p.a*Math.cos(p.p/p.q*t);return[r*Math.cos(t),r*Math.sin(t),0]}},
+pattern:{n:'Background pattern',seg:p=>p.n,eq:'hypotrochoid, repeated × layers',p:[['R','Ring gear R',20,200,1,105,'teeth'],['r','Planet r',3,150,1,44,'teeth'],['d','Pen hole d',0,150,1,30,'mm'],['n','Layers',1,24,1,6,'']],
+ f:(u,i,p)=>{const r=Math.min(p.r,p.R-1),g=gcd(p.R,r),t=u*TAU*r/g,k=(p.R-r)/r,x=(p.R-r)*Math.cos(t)+p.d*Math.cos(k*t),y=(p.R-r)*Math.sin(t)-p.d*Math.sin(k*t),a=i*TAU/p.n,c=Math.cos(a),s=Math.sin(a);return[x*c-y*s,x*s+y*c,0]}},
+polygon:{n:'Regular polygon',N:p=>p.n*40,eq:p=>`${p.n} sides · side ${(2*p.R*Math.sin(Math.PI/p.n)).toFixed(1)} mm · interior angle ${((p.n-2)*180/p.n).toFixed(1)}°`,
+ p:[['n','Sides n',3,12,1,5,''],['R','Circumradius R',5,150,1,60,'mm'],['k','Rotation',0,360,1,90,'°']],
+ f:(u,i,p)=>{const s=u*p.n,j=Math.min(p.n-1,Math.floor(s)),v=s-j,a0=p.k*Math.PI/180+j*TAU/p.n,a1=a0+TAU/p.n;return[p.R*((1-v)*Math.cos(a0)+v*Math.cos(a1)),p.R*((1-v)*Math.sin(a0)+v*Math.sin(a1)),0]}},
+spirhelix:{n:'Spiralling helix',d3:1,sec:1,N:p=>Math.max(1500,400*p.T),eq:'r = (a + bt)·ρ(t),  z = pitch·t/2π  (radius grows as it rises)',p:[['a','Start size a',2,60,.5,10,'mm'],['b','Growth b',.1,10,.1,2,'mm/rad'],['h','Pitch',1,50,.5,10,'mm/turn'],['T','Turns',1,15,.5,6,'']],
+ f:(u,i,p)=>{const t=u*p.T*TAU,r=(p.a+p.b*t)*rho(SEC.k,t);return[r*Math.cos(t),r*Math.sin(t),p.h*(t/TAU-p.T/2)]}}
+};
+const $=id=>document.getElementById(id),cv=$('cv'),g=cv.getContext('2d'),W=cv.width,H=cv.height;
+let key='spiral',P={},pts=[],prog=0,play=true,last=0,sc=1,box;
+function slH(id,l,mn,mx,st,df,un){const tk=[0,1,2,3,4].map(i=>+(mn+(mx-mn)*i/4).toFixed(2));
+ return`<div class="pr"><label>${l}<b><span id="v_${id}">${df}</span> ${un}</b></label><input type="range" id="s_${id}" min="${mn}" max="${mx}" step="${st}" value="${df}" list="t_${id}"><datalist id="t_${id}">${tk.map(t=>`<option value="${t}">`).join('')}</datalist><div class="sc">${tk.map(t=>`<span>${t}</span>`).join('')}</div></div>`}
+function build(){const c=C[key];$('view3d').style.display=c.d3?'':'none';$('b_s').disabled=!c.sec;$('l_c').textContent=c.n;$('l_p').textContent=c.p.length+' settings';
+ c.p.forEach(a=>{P[a[0]]=a[5]});$('params').innerHTML=c.p.map(a=>slH(...a)).join('');
+ c.p.forEach(([k])=>$('s_'+k).oninput=e=>{P[k]=+e.target.value;$('v_'+k).textContent=P[k];calc()});renderSec();calc()}
+function view(x,y,z){const c=C[key];if(!c.d3)return[x,y];const yw=$('yaw').value*Math.PI/180,pt=$('pit').value*Math.PI/180,
+ X=x*Math.cos(yw)-y*Math.sin(yw),Y0=x*Math.sin(yw)+y*Math.cos(yw);return[X,Y0*Math.sin(pt)+z*Math.cos(pt)];}
+function calc(){const c=C[key],seg=c.seg?c.seg(P):1,N=Math.min(9000,c.N?c.N(P):1500*Math.max(1,Math.ceil(seg/2)));$('eq').textContent=typeof c.eq=='function'?c.eq(P):c.eq;pts=[];
+ for(let k=0;k<=N;k++){const s=k/N*seg,i=Math.min(seg-1,Math.floor(s)),q=c.f(s-i,i,P);pts.push({q,i});}
+ $('yv').textContent=$('yaw').value+'°';$('pv').textContent=$('pit').value+'°';
+ let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;pts.forEach(o=>{const[a,b]=view(...o.q);o.v=[a,b];x0=Math.min(x0,a);x1=Math.max(x1,a);y0=Math.min(y0,b);y1=Math.max(y1,b)});
+ const id=Object.keys(C).indexOf(key)+1,vals=c.p.map(a=>P[a[0]]);while(vals.length<4)vals.push(0);
+ $('cmd').textContent='Machine command:  C '+id+' '+vals.join(' ')+' '+['circle','ellipse','square','rect','tri','hex'].indexOf(SEC.k)+' '+SEC.asp+' '+SEC.sq;
+ const ex=Math.max(x1-x0,y1-y0,1e-6);sc=Math.min(W,H)*.78/ex;box={cx:(x0+x1)/2,cy:(y0+y1)/2,ex};draw();}
+const SX=x=>W/2+(x-box.cx)*sc,SY=y=>H/2-(y-box.cy)*sc;
+function nice(v){const e=Math.pow(10,Math.floor(Math.log10(v))),m=v/e;return(m<1.5?1:m<3.5?2:m<7.5?5:10)*e}
+function grid(){g.fillStyle='#fbfaf5';g.fillRect(0,0,W,H);if(!$('gd').checked)return;const st=nice(box.ex/6);g.font='12px sans-serif';g.lineWidth=1;
+ const xl=box.cx-W/2/sc,xr=box.cx+W/2/sc,yb=box.cy-H/2/sc,yt=box.cy+H/2/sc;
+ for(let x=Math.ceil(xl/st)*st;x<=xr;x+=st){const X=SX(x),z=Math.abs(x)<st/1e3;g.strokeStyle=z?'#555':'#e0ddd0';g.beginPath();g.moveTo(X,0);g.lineTo(X,H);g.stroke();g.fillStyle='#777';g.fillText(+x.toFixed(3),X+3,H-5)}
+ for(let y=Math.ceil(yb/st)*st;y<=yt;y+=st){const Y=SY(y),z=Math.abs(y)<st/1e3;g.strokeStyle=z?'#555':'#e0ddd0';g.beginPath();g.moveTo(0,Y);g.lineTo(W,Y);g.stroke();g.fillStyle='#777';g.fillText(+y.toFixed(3),4,Y-3)}
+ g.fillStyle='#333';g.fillText('grid = '+st+' mm',W-100,16);}
+function draw(){grid();const n=Math.floor(prog*(pts.length-1)),rb=$('rb').checked,per=rb?Math.max(1,Math.ceil(n/90)):Math.max(1,n);
+ g.lineWidth=+$('lw').value;g.lineJoin=g.lineCap='round';
+ for(let s=0;s<=n;s+=per){g.strokeStyle=rb?`hsl(${Math.round(s/pts.length*360)},85%,45%)`:$('col').value;g.beginPath();
+  for(let k=s;k<=Math.min(n,s+per);k++){const o=pts[k],X=SX(o.v[0]),Y=SY(o.v[1]);(k==s||pts[k-1].i!==o.i)?g.moveTo(X,Y):g.lineTo(X,Y)}g.stroke()}
+ const o=pts[n];g.fillStyle=rb?'#111':$('col').value;g.strokeStyle='#fff';g.lineWidth=2;g.beginPath();g.arc(SX(o.v[0]),SY(o.v[1]),5,0,TAU);g.fill();g.stroke();
+ $('info').textContent=`pen: x=${o.q[0].toFixed(1)} y=${o.q[1].toFixed(1)}`+(C[key].d3?` z=${o.q[2].toFixed(1)}`:'')+` mm | progress ${(prog*100).toFixed(0)}%`;}
+function loop(t){const dt=(t-last)/1000;last=t;if(play&&prog<1){prog=Math.min(1,prog+dt*$('sp').value/100*.5);draw()}$('spv').textContent=$('sp').value+'%';requestAnimationFrame(loop)}
+const CLS=[['Spirals & helices',['spiral','helix','spirhelix','toroid']],['Conics & lines',['circle','ellipse','parabola','hyperbola','line']],['Rolling curves',['cycloid','cardioid']],['Patterns & polygons',['flower','pattern','polygon']]];
+const SECS=[['circle','Circular'],['ellipse','Elliptical'],['square','Squarish'],['rect','Rectangularish'],['tri','Triangular'],['hex','Hexagonal']];
+const closeAll=()=>document.querySelectorAll('.pop.open').forEach(p=>p.classList.remove('open'));
+$('pop_c').innerHTML=CLS.map(([t,ks])=>`<h4>${t}</h4><div class="grid">${ks.map(k=>`<button class="b" data-k="${k}">${Object.keys(C).indexOf(k)+1}. ${C[k].n}</button>`).join('')}</div>`).join('');
+$('pop_s').innerHTML='<div class="grid3" id="sgrid"></div><div id="asw">'+slH('asp','Aspect b/a (height ÷ width)',.2,1,.05,.6,'')+'</div><div id="sqw">'+slH('sq','Squareness n (2 = round, 20 = sharp)',2,20,.5,4,'')+'</div><p style="color:var(--mut);font-size:.8rem;margin:8px 0 0">Applies to spiral, helix, toroid and spiralling helix.</p>';
+function glyph(k){let d='';for(let i=0;i<=72;i++){const f=i/72*TAU,r=rho(k,f);d+=(i?'L':'M')+(r*Math.cos(f)).toFixed(2)+' '+(-r*Math.sin(f)).toFixed(2)}
+ return`<svg viewBox="-1.5 -1.5 3 3" width="34" height="34"><path d="${d}Z" fill="none" stroke="currentColor" stroke-width=".13"/></svg>`}
+function renderSec(){$('sgrid').innerHTML=SECS.map(([k,l])=>`<button class="b${k==SEC.k?' on':''}" data-s="${k}" style="display:flex;flex-direction:column;align-items:center;padding:4px">${glyph(k)}<span style="font-size:.68rem">${l}</span></button>`).join('');
+ $('asw').style.display=(SEC.k=='ellipse'||SEC.k=='rect')?'':'none';$('sqw').style.display=(SEC.k=='square'||SEC.k=='rect')?'':'none';
+ $('l_s').textContent=C[key].sec?SECS.find(a=>a[0]==SEC.k)[1]:'n/a'}
+function markCurve(){document.querySelectorAll('#pop_c [data-k]').forEach(b=>b.classList.toggle('on',b.dataset.k===key))}
+document.querySelectorAll('.pop').forEach(p=>p.insertAdjacentHTML('afterbegin',`<div class="ph"><b>${p.dataset.t}</b><button class="b x">✕</button></div>`));
+document.querySelectorAll('.x').forEach(x=>x.onclick=closeAll);
+document.querySelectorAll('.ddb').forEach(b=>b.onclick=()=>{const p=$(b.dataset.p),o=p.classList.contains('open');closeAll();if(!o)p.classList.add('open')});
+document.addEventListener('click',e=>{if(!e.target.closest('.pop')&&!e.target.closest('.ddb'))closeAll()});
+addEventListener('keydown',e=>{if(e.key=='Escape')closeAll()});
+$('pop_c').onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;key=b.dataset.k;P={};prog=0;play=true;$('play').textContent='⏸ Pause';markCurve();closeAll();build()};
+$('sgrid').onclick=e=>{const b=e.target.closest('[data-s]');if(!b)return;SEC.k=b.dataset.s;prog=0;renderSec();calc()};
+$('s_asp').oninput=e=>{SEC.asp=+e.target.value;$('v_asp').textContent=SEC.asp;renderSec();calc()};
+$('s_sq').oninput=e=>{SEC.sq=+e.target.value;$('v_sq').textContent=SEC.sq;renderSec();calc()};
+const SW=['#c1121f','#0b5fff','#0a8f3c','#111111','#7b2cbf','#f77f00','#e63980','#00a6a6'];
+$('swr').innerHTML=SW.map(c=>`<button data-c="${c}" title="${c}" style="background:${c}"></button>`).join('');
+$('swr').onclick=e=>{const c=e.target.dataset.c;if(c){$('col').value=c;penUI()}};
+function penUI(){$('sw').style.background=$('rb').checked?'conic-gradient(red,yellow,lime,cyan,blue,magenta,red)':$('col').value;draw()}
+$('col').oninput=$('rb').onchange=penUI;$('lw').oninput=()=>{$('lwv').textContent=$('lw').value;draw()};$('gd').onchange=draw;
+$('play').onclick=()=>{play=!play;$('play').textContent=play?'⏸ Pause':'▶ Trace';if(play&&prog>=1)prog=0};
+$('reset').onclick=()=>{prog=0;play=true;$('play').textContent='⏸ Pause'};$('full').onclick=()=>{prog=1;draw()};
+$('yaw').oninput=$('pit').oninput=calc;
+$('png').onclick=()=>{const a=document.createElement('a');a.download=key+'.png';a.href=cv.toDataURL();a.click()};
+markCurve();build();penUI();requestAnimationFrame(loop);
+</script></body></html>

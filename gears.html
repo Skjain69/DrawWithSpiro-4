@@ -1,0 +1,29 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="icon.svg" type="image/svg+xml"><title>Gear Calculator</title>
+<style>body{margin:0;font:15px/1.6 system-ui,sans-serif;background:#0f1420;color:#e8ecf5}main{max-width:900px;margin:auto;padding:20px}a{color:#ffb703}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:700px){.row{grid-template-columns:1fr}}.c{background:#182033;border:1px solid #2a3550;border-radius:12px;padding:14px}
+label{display:block;margin:8px 0 2px;font-size:.9rem}input{width:100%;padding:6px;border-radius:6px;border:1px solid #2a3550;background:#0b101b;color:#e8ecf5}
+td{padding:3px 10px 3px 0}td:last-child{color:#ffb703;font-family:monospace}canvas{width:100%;background:#fbfaf5;border-radius:8px}.w{color:#ff7b7b}</style></head><body><main>
+<a href="index.html"><img src="logo.svg" alt="Universal Curve Tracer" style="display:block;margin:0 auto 14px;max-width:92%;height:auto" width="440" height="100"></a><a href="index.html">← Back to project</a><h1>Spirograph Gear Calculator</h1>
+<div class="row"><div class="c">
+<label>Module m (mm) — m = 2 makes teeth count = pitch radius in mm, as in the web demo</label><input id="m" type="number" value="2" step="0.5" min="0.5">
+<label>Ring gear teeth R</label><input id="R" type="number" value="105" min="20">
+<label>Planet gear teeth r</label><input id="r" type="number" value="44" min="3">
+<label>Pen hole distance d from planet centre (mm)</label><input id="d" type="number" value="30" min="0">
+<label>Layers (rotated repeats)</label><input id="n" type="number" value="1" min="1"></div>
+<div class="c"><table id="out"></table><p id="warn" class="w"></p></div></div>
+<div class="c" style="margin-top:16px"><canvas id="c" width="800" height="560"></canvas></div>
+<script>
+const $=i=>document.getElementById(i),gcd=(a,b)=>b?gcd(b,a%b):a;
+function run(){const m=+$('m').value,R=Math.round($('R').value),r=Math.round($('r').value),d=+$('d').value,n=+$('n').value,T=2*Math.PI,w=[];
+ const gg=gcd(R,r),rows=[['Ring pitch / outer dia',(m*R).toFixed(1)+' / '+(m*(R+2*0)+2*m).toFixed(1)+' mm'],['Planet pitch dia',(m*r).toFixed(1)+' mm'],['Planet outer dia',(m*(r+2)).toFixed(1)+' mm'],
+ ['Planet root dia',(m*(r-2.5)).toFixed(1)+' mm'],['Centre distance m(R−r)/2',(m*(R-r)/2).toFixed(2)+' mm'],['Gear ratio R:r',(R/gg)+' : '+(r/gg)],
+ ['Lobes / petals',R/gg],['Carrier turns to close',r/gg],['Pattern radius (R−r)m/2 + d',(m*(R-r)/2+d).toFixed(1)+' mm']];
+ let type='Hypotrochoid (spirograph)';if(2*r===R)type=d==0?'Circle':d==r*m/2?'Straight line':'Ellipse';
+ rows.unshift(['Curve type',type]);$('out').innerHTML=rows.map(x=>`<tr><td>${x[0]}</td><td>${x[1]}</td></tr>`).join('');
+ if(r>=R)w.push('Planet must have fewer teeth than ring.');if(r<12)w.push('Fewer than 12 teeth: teeth may be undercut / weak.');if(d>m*r/2)w.push('Pen hole lies outside the planet gear.');if(R*m>250)w.push('Ring is larger than a typical 3D-printer bed.');
+ $('warn').textContent=w.join(' ');
+ const c=$('c'),g=c.getContext('2d');g.fillStyle='#fbfaf5';g.fillRect(0,0,800,560);if(r>=R)return;
+ const k=(R-r)/r,A=R-r,s=240/(A+d+1e-9);g.strokeStyle='#c1121f';g.beginPath();const N=6000;
+ for(let L=0;L<n;L++){for(let i=0;i<=N;i++){const t=i/N*T*r/gg,x=A*Math.cos(t)+d*Math.cos(k*t),y=A*Math.sin(t)-d*Math.sin(k*t),a=L*T/n;
+  const X=400+s*(x*Math.cos(a)-y*Math.sin(a)),Y=280-s*(x*Math.sin(a)+y*Math.cos(a));i?g.lineTo(X):g.moveTo(X,Y)}}g.stroke();}
+document.querySelectorAll('input').forEach(e=>e.oninput=run);run();</script></main></body></html>
